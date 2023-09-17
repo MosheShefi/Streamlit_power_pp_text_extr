@@ -10,7 +10,7 @@ def upload():
     else:
         for uploaded_file in uploaded_files:
             prs = Presentation(uploaded_file)
-            st.header("------- " + uploaded_file.name + " --------")
+            st.header(uploaded_file.name)
             for slide in prs.slides:
                 for shape in slide.shapes:
                     if hasattr(shape, "text"):
