@@ -1,7 +1,8 @@
 import streamlit as st
 from pptx import Presentation
 from docx import Document
-import os
+# import os
+from pathlib import Path
 
 uploaded_files = st.file_uploader("Choose a PPTX file",type=["pptx"],
                                   accept_multiple_files=True)
@@ -23,8 +24,19 @@ def upload():
                         st.write(shape.text)
                         cleaned_string = ''.join(c for c in shape.text if valid_xml_char_ordinal(c))
                         p = document.add_paragraph(cleaned_string)
-            if on:
-                document.save(uploaded_file.name + '.docx')           
+            if save_doc_on:
+                # document.save(uploaded_file.name + '.docx')
+                
+                # save_folder = '/Users/mshefi/downloads'
+                if save_folder:
+                    save_path = Path(save_folder, uploaded_file.name)
+                    with open(save_path, mode='wb') as w:
+                        w.write(uploaded_file.getvalue())
+
+                    if save_path.exists():
+                        st.success(f'File: {uploaded_file.name} is successfully saved!')
+                else:
+                    st.error('Input a folder to save')
 
 def valid_xml_char_ordinal(c):
     codepoint = ord(c)
@@ -36,13 +48,10 @@ def valid_xml_char_ordinal(c):
         0x10000 <= codepoint <= 0x10FFFF
         )
 
-def file_selector(folder_path='/'):
-    filenames = os.listdir(folder_path)
-    selected_filename = st.selectbox('Select a file', filenames)
-    return os.path.join(folder_path, selected_filename)
-
 st.button("Parse text out of pptx file/s", on_click=upload, disabled=not uploaded_files)
-on = st.toggle('Save into a Word doc/s?')
+save_doc_on = st.toggle('Save into a Word doc/s?')
+if save_doc_on:
+    save_folder = st.text_input('Save to folder')
 
 # filename = file_selector()
 # if filename:
